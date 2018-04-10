@@ -3,23 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Simple Vue App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <div id="exercise">
         <div>
-            <button v-on:click="alertFunc">Show Alert</button>
+            <button @click="startEffect">Start Effect</button>
+            <div id="effect" :class="effectStyle"></div>
+        </div>
+        <div :class="[shrinkClass,highlightClass]">I got no class :(</div>
+        <div>
+            <input v-model="usersClass" type="text">
+            <div :class="usersClass"></div>
         </div>
         <div>
-            <input v-on:keydown="getValue" type="text">
-            <p>{{ value }}</p>
+            <input type="text" v-model="secondUsersClass">
+            <input type="text" v-model="attachNewClass" placeholder="Type 'F' or 'T'">
+            <div :class="usersClasses"></div>
         </div>
         <div>
-            <input v-on:keydown.enter="getValue" type="text">
-            <p>{{ value }}</p>
+            <input type="text" v-model="userStyles" placeholder="Separate styles by coma">
+            <div :style="usersStyles"></div>
+        </div>
+        <div>
+            <button v-on:click="startProgress">Start Progress</button>
+            <div :style="{width:progressBarWidthMax, border:progressBarBorderMax, height: progressBarHeightMax}">
+                <div :style="progressBarCurrentObj"></div>
+            </div>
         </div>
     </div>
+
     <script src="app.js"></script>
+
 </body>
 </html>
