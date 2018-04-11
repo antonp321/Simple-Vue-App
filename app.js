@@ -1,90 +1,129 @@
 new Vue({
-    el: '#exercise',
-    data: {
-        attachClass: false,
-        highlightClass: "highlight",
-        shrinkClass: "shrink",
-        usersClass: "",
-        secondUsersClass: "",
-        attachNewClass: "",
-        userStyles: "",
-        progressBarWidthMax: "150px",
-        progressBarWidthCurrentPixels: 0,
-        progressBarBorderMax: "2px solid",
-        progressBarCurrentObj: {},
-        progressBarHeightMax: "25px",
-        intervalVar: ""
+
+    el:"#app",
+
+    data:{
+
+        startTheGame: false,
+        messages: [],
+
+        //player properties
+        playerHealth: 80,
+        playerBarWidth: 80,
+
+        //monster properties
+        monsterHealth: 80,
+        monsterBarWidth: 80
     },
+
     computed:{
-        effectStyle: function(){
-
-            return this.startEffectObj = {
-                highlight: !this.attachClass,
-                shrink: this.attachClass
-            };
-        },
-
-        usersClasses: function(){
-
-            var attachNewClassBool = this.attachNewClass === "T" ? true : false;
+        playerBarStyle: function(){
             var objectToReturn = {
-                borderColor: attachNewClassBool
+                width: this.playerBarWidth + "%"
             };
 
-            objectToReturn[this.secondUsersClass] = true;
-
-            return objectToReturn;
+            return objectToReturn
         },
 
-        usersStyles: function(){
-            var arrOfStyles = this.userStyles.split(',');
-
-            var objToReturn = {
-                width: "100px",
-                height: "100px"
+        monsterBarStyle: function(){
+            var objectToReturn = {
+                width: this.monsterBarWidth + "%"
             };
 
-            for(var i = 0; i < arrOfStyles.length; i++){
-                var objKey = arrOfStyles[i].split(':')[0];
-                var objValue = arrOfStyles[i].split(':')[1];
+            return objectToReturn
+        }
+    },
 
-                objToReturn[objKey] = objValue;
+    methods:{
+
+        setMonstersHealth: function(monstersHealth){
+            this.monsterHealth = monstersHealth;
+            this.monsterBarWidth = monstersHealth;
+        },
+
+        setPlayersHealth: function(playersHealth){
+            this.playerHealth = playersHealth;
+            this.playerBarWidth = playersHealth;
+        },
+
+        heal: function(){
+            this.setPlayersHealth(this.playerHealth + 14);
+
+            var monsterDmg = Math.floor(Math.random() * (21) + 1);
+            this.setPlayersHealth(this.playerHealth - monsterDmg);
+
+            this.messages.push(
+                {
+                    text: "Player healed with 14 HP.",
+                    classToAttach: "player-turn"
+                },
+                {
+                    text: "Monster damaged with " + monsterDmg + " HP.",
+                    classToAttach: "monster-turn"
+                }
+            )
+        },
+
+        startNewGame: function(){
+            this.setMonstersHealth(100);
+            this.setPlayersHealth(100);
+
+            this.startTheGame = true;
+
+            this.messages = [];
+        },
+
+        makeAttack: function(isTheAttackSpecial){
+
+            var monsterMin = 0;
+            var monsterMax = 0;
+            var playerMin = 0;
+            var playerMax = 0;
+
+            if(!isTheAttackSpecial){
+                monsterMin = 2;
+                monsterMax = 7;
+                playerMin = 5;
+                playerMax = 10;
+            }
+            else{
+                monsterMin = 1;
+                monsterMax = 10;
+                playerMin = 10;
+                playerMax = 15;
             }
 
-            return objToReturn;
-        }
-    },
-    methods: {
-        startEffect: function() {
-            var _this = this;
+            var playerDmg = Math.floor(Math.random() * (playerMax - playerMin + 1)) + playerMin;
+            var monsterDmg = Math.floor(Math.random() * (monsterMax - monsterMin + 1)) + monsterMin;
 
-            setInterval(function(){
-                _this.attachClass = !_this.attachClass;
-            }, 3000);
-        },
-        startProgress: function(){
-            var _this = this;
-            var currentProgressBarWidthInStr = "";
+            this.setMonstersHealth(this.monsterHealth - playerDmg);
+            this.setPlayersHealth(this.playerHealth - monsterDmg);
 
-            this.intervalVar = setInterval(function(){
-                _this.progressBarWidthCurrentPixels += 25;
-
-                currentProgressBarWidthInStr = _this.progressBarWidthCurrentPixels + "px";
-
-                _this.progressBarCurrentObj = {
-                    width: currentProgressBarWidthInStr,
-                    backgroundColor: "green",
-                    height: _this.progressBarHeightMax
+            this.messages.push(
+                {
+                    text: "Player damaged with "  + playerDmg + " HP.",
+                    classToAttach: "player-turn"
+                },
+                {
+                    text: "Monster damaged with " + monsterDmg + " HP.",
+                    classToAttach: "monster-turn"
                 }
-            }, 2000);
+            )
         }
     },
-    
-    watch: {
-        progressBarWidthCurrentPixels: function(value){
-            if(value >= 150){
-                window.clearInterval(this.intervalVar);
+
+    watch:{
+        playerHealth: function(value){
+            if(value >= 100){
+                this.setPlayersHealth(100);
+            }
+        },
+        monsterHealth: function(value){
+            if(value <= 0){
+                alert("YOU'VE KILLED THE MONSTER !!!");
+                this.startTheGame = false;
             }
         }
     }
+
 });
